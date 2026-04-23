@@ -36,7 +36,7 @@ export default function ProfilePanel() {
   );
 
   return (
-    <aside className={`flex-shrink-0 bg-surface-1 border-l border-neutral-200 min-h-screen hidden 2xl:flex flex-col transition-all duration-300 ${isCollapsed ? "w-[72px] items-center py-6 px-0" : "w-80 p-6"}`}>
+    <aside className={`flex-shrink-0 bg-surface-1 border-l border-neutral-200 min-h-screen hidden lg:flex flex-col transition-all duration-300 ${isCollapsed ? "w-[72px] items-center py-6 px-0" : "w-80 p-6"}`}>
       {/* Header with Notifications & Toggle */}
       <div className={`flex w-full mb-10 ${isCollapsed ? "justify-center" : "justify-between items-center"}`}>
         {!isCollapsed && <h2 className="font-bold text-text-primary leading-none">Account</h2>}
