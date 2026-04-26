@@ -1,26 +1,122 @@
 // ─── Auth ───────────────────────────────────────────────────────────────────
-// Login module is intentionally kept as-is (not sourced from DB dump)
 
 export const MOCK_USERS = [
   {
-    userId: "admin",
+    id: "admin",
     password: "admin123",
     name: "Admin User",
     role: "admin",
     email: "admin@ecs.internal",
     department: "Operations",
     avatar: "AU",
-    lastLogin: "2025-04-16T08:30:00Z",
+    last_login: "2025-04-16T08:30:00Z",
   },
   {
-    userId: "analyst01",
+    id: "analyst01",
     password: "analyst123",
     name: "Evidence Analyst",
     role: "analyst",
     email: "analyst01@ecs.internal",
     department: "Forensics",
     avatar: "EA",
-    lastLogin: "2025-04-15T14:20:00Z",
+    last_login: "2025-04-15T14:20:00Z",
+  },
+  {
+    id: "sarah.j",
+    password: "password123",
+    name: "Sarah Jenkins",
+    role: "stakeholder",
+    email: "sarah.j@enterprise.com",
+    department: "Management",
+    avatar: "SJ",
+    last_login: "2026-04-20T10:15:00Z",
+  },
+  {
+    id: "m.chen",
+    password: "password123",
+    name: "Michael Chen",
+    role: "stakeholder",
+    email: "m.chen@fintech-solutions.io",
+    department: "Finance",
+    avatar: "MC",
+    last_login: "2026-04-19T09:45:00Z",
+  },
+];
+
+// ─── Components ─────────────────────────────────────────────────────────────
+
+export const MOCK_COMPONENTS = [
+  {
+    id: "comp-yugabyte",
+    name: "yugabyte",
+    display_name: "YugabyteDB",
+    type: "database",
+    description: "Distributed SQL Database",
+    created_at: "2026-04-07T10:00:00Z",
+    updated_at: "2026-04-07T10:00:00Z",
+  },
+  {
+    id: "comp-postgres",
+    name: "postgres",
+    display_name: "PostgreSQL",
+    type: "database",
+    description: "Relational Database",
+    created_at: "2026-04-07T10:00:00Z",
+    updated_at: "2026-04-07T10:00:00Z",
+  },
+  {
+    id: "comp-nginx",
+    name: "nginx",
+    display_name: "Nginx Web Server",
+    type: "webserver",
+    description: "Web Server and Reverse Proxy",
+    created_at: "2026-04-07T10:00:00Z",
+    updated_at: "2026-04-07T10:00:00Z",
+  },
+  {
+    id: "comp-aerospike",
+    name: "aerospike",
+    display_name: "Aerospike",
+    type: "database",
+    description: "Real-time NoSQL Data Platform",
+    created_at: "2026-04-07T10:00:00Z",
+    updated_at: "2026-04-07T10:00:00Z",
+  },
+  {
+    id: "comp-jenkins",
+    name: "jenkins",
+    display_name: "Jenkins",
+    type: "ci-cd",
+    description: "Automation Server",
+    created_at: "2026-04-07T10:00:00Z",
+    updated_at: "2026-04-07T10:00:00Z",
+  },
+  {
+    id: "comp-sql",
+    name: "sql",
+    display_name: "Cloud SQL",
+    type: "database",
+    description: "Fully Managed Relational Database Service",
+    created_at: "2026-04-07T10:00:00Z",
+    updated_at: "2026-04-07T10:00:00Z",
+  },
+  {
+    id: "comp-pubsub",
+    name: "pubsub",
+    display_name: "Pub/Sub",
+    type: "messaging",
+    description: "Asynchronous Messaging Service",
+    created_at: "2026-04-07T10:00:00Z",
+    updated_at: "2026-04-07T10:00:00Z",
+  },
+  {
+    id: "comp-storage",
+    name: "storage",
+    display_name: "Cloud Storage",
+    type: "storage",
+    description: "Object Storage Service",
+    created_at: "2026-04-07T10:00:00Z",
+    updated_at: "2026-04-07T10:00:00Z",
   },
 ];
 
@@ -29,12 +125,13 @@ export const MOCK_USERS = [
 export const MOCK_HOSTS = [
   {
     id: "0c3e9829-a255-4694-8f40-d6375ec98af0",
+    project_id: "p-customer-portal",
+    component_id: "comp-yugabyte",
     name: "yugabyte-node-01",
     ip: "10.89.0.10",
     os_family: "Linux",
     os_version: "Ubuntu 22.04",
     env: "dev",
-    project_id: "ps-postgres",
     type: "yugabyte",
     created_at: "2026-04-07T10:58:56Z",
     updated_at: "2026-04-07T10:58:56Z",
@@ -45,12 +142,13 @@ export const MOCK_HOSTS = [
   },
   {
     id: "e178ffcd-9084-48a4-9cdb-4a5fe6ddd678",
+    project_id: "p-billing-core",
+    component_id: "comp-postgres",
     name: "postgres-node-01",
     ip: "10.89.0.16",
     os_family: "Linux",
     os_version: "Debian 13",
     env: "dev",
-    project_id: "ps-postgres",
     type: "postgres",
     created_at: "2026-04-07T10:59:15Z",
     updated_at: "2026-04-07T10:59:15Z",
@@ -76,8 +174,13 @@ export const MOCK_AGENTS = [
     updated_at: "2026-04-07T11:02:56Z",
     osquery_instance: {
       id: "8ab5816f-ae9e-4dce-a7a9-19430722021e",
+      agent_id: "1368cc28-ff01-4f64-8545-12b0ba5cd0f2",
+      host_id: "0c3e9829-a255-4694-8f40-d6375ec98af0",
+      node_key: "node-key-1",
       host_identifier: "0c3e9829-a255-4694-8f40-d6375ec98af0",
       is_active: true,
+      created_at: "2026-04-07T10:58:56Z",
+      updated_at: "2026-04-07T11:02:56Z",
     },
   },
   {
@@ -92,8 +195,13 @@ export const MOCK_AGENTS = [
     updated_at: "2026-04-07T11:03:15Z",
     osquery_instance: {
       id: "d33a3fb3-9886-435c-a3a0-e342961d732d",
+      agent_id: "399619d2-e2bd-4d20-b015-dc07bf42bac6",
+      host_id: "e178ffcd-9084-48a4-9cdb-4a5fe6ddd678",
+      node_key: "node-key-2",
       host_identifier: "e178ffcd-9084-48a4-9cdb-4a5fe6ddd678",
       is_active: true,
+      created_at: "2026-04-07T10:59:15Z",
+      updated_at: "2026-04-07T11:03:15Z",
     },
   },
 ];
@@ -112,6 +220,7 @@ export const MOCK_RULES = [
     severity: "high",
     is_active: true,
     created_at: "2026-04-07T10:58:19Z",
+    updated_at: "2026-04-07T10:58:19Z",
     policy: "yugabyte_baseline",
   },
   {
@@ -124,6 +233,7 @@ export const MOCK_RULES = [
     severity: "medium",
     is_active: true,
     created_at: "2026-04-07T10:58:19Z",
+    updated_at: "2026-04-07T10:58:19Z",
     policy: "yugabyte_baseline",
   },
   {
@@ -136,6 +246,7 @@ export const MOCK_RULES = [
     severity: "high",
     is_active: true,
     created_at: "2026-04-07T10:58:19Z",
+    updated_at: "2026-04-07T10:58:19Z",
     policy: "yugabyte_baseline",
   },
   {
@@ -148,6 +259,7 @@ export const MOCK_RULES = [
     severity: "medium",
     is_active: true,
     created_at: "2026-04-07T10:58:19Z",
+    updated_at: "2026-04-07T10:58:19Z",
     policy: "yugabyte_baseline",
   },
   {
@@ -160,6 +272,7 @@ export const MOCK_RULES = [
     severity: "critical",
     is_active: true,
     created_at: "2026-04-07T10:58:19Z",
+    updated_at: "2026-04-07T10:58:19Z",
     policy: "yugabyte_baseline",
   },
   // nginx_baseline rules
@@ -173,6 +286,7 @@ export const MOCK_RULES = [
     severity: "high",
     is_active: true,
     created_at: "2026-04-07T10:58:19Z",
+    updated_at: "2026-04-07T10:58:19Z",
     policy: "nginx_baseline",
   },
   {
@@ -185,6 +299,7 @@ export const MOCK_RULES = [
     severity: "medium",
     is_active: true,
     created_at: "2026-04-07T10:58:19Z",
+    updated_at: "2026-04-07T10:58:19Z",
     policy: "nginx_baseline",
   },
   // postgres_baseline rules
@@ -198,6 +313,7 @@ export const MOCK_RULES = [
     severity: "high",
     is_active: true,
     created_at: "2026-04-07T10:58:19Z",
+    updated_at: "2026-04-07T10:58:19Z",
     policy: "postgres_baseline",
   },
   {
@@ -210,6 +326,7 @@ export const MOCK_RULES = [
     severity: "medium",
     is_active: true,
     created_at: "2026-04-07T10:58:19Z",
+    updated_at: "2026-04-07T10:58:19Z",
     policy: "postgres_baseline",
   },
   {
@@ -222,6 +339,7 @@ export const MOCK_RULES = [
     severity: "high",
     is_active: true,
     created_at: "2026-04-07T10:58:19Z",
+    updated_at: "2026-04-07T10:58:19Z",
     policy: "postgres_baseline",
   },
   {
@@ -234,6 +352,7 @@ export const MOCK_RULES = [
     severity: "medium",
     is_active: true,
     created_at: "2026-04-07T10:58:19Z",
+    updated_at: "2026-04-07T10:58:19Z",
     policy: "postgres_baseline",
   },
   {
@@ -246,6 +365,7 @@ export const MOCK_RULES = [
     severity: "critical",
     is_active: true,
     created_at: "2026-04-07T10:58:19Z",
+    updated_at: "2026-04-07T10:58:19Z",
     policy: "postgres_baseline",
   },
 ];
@@ -255,58 +375,73 @@ export const MOCK_RULES = [
 export const MOCK_POLICIES = [
   {
     id: "a1b2c3d4-e5f6-7890-abcd-ef1234567800",
+    component_id: "comp-yugabyte",
+    audit_control_id: null,
     name: "yugabyte_baseline",
     description: "YugaByteDB security & compliance baseline",
-    version: "1.0.0",
-    is_active: true,
+    severity: "medium",
+    created_by: "admin",
+    updated_by: "admin",
     created_at: "2026-04-07T10:58:19Z",
     updated_at: "2026-04-07T10:58:19Z",
-    assignment: { key: "database", operator: "=", value: "yugabyte" },
+    version: "1.0.0",
+    is_active: true,
     rules: [
-      "tls-enable-check",
-      "max-connections-check",
-      "log-connections-check",
-      "log-disconnections-check",
-      "password-encryption-check",
+      "b1b2c3d4-e5f6-7890-abcd-ef1234567811",
+      "c1b2c3d4-e5f6-7890-abcd-ef1234567812",
+      "d1b2c3d4-e5f6-7890-abcd-ef1234567813",
+      "e1b2c3d4-e5f6-7890-abcd-ef1234567814",
+      "f1b2c3d4-e5f6-7890-abcd-ef1234567815",
     ],
   },
   {
     id: "a1b2c3d4-e5f6-7890-abcd-ef1234567820",
+    component_id: "comp-nginx",
+    audit_control_id: null,
     name: "nginx_baseline",
     description: "Nginx security & compliance baseline",
-    version: "1.0.0",
-    is_active: true,
+    severity: "medium",
+    created_by: "admin",
+    updated_by: "admin",
     created_at: "2026-04-07T10:58:19Z",
     updated_at: "2026-04-07T10:58:19Z",
-    assignment: { key: "service", operator: "=", value: "nginx" },
-    rules: ["tls-enable-check", "tls-version-check"],
+    version: "1.0.0",
+    is_active: true,
+    rules: [
+      "b1b2c3d4-e5f6-7890-abcd-ef1234567821",
+      "c1b2c3d4-e5f6-7890-abcd-ef1234567822",
+    ],
   },
   {
     id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    component_id: "comp-postgres",
+    audit_control_id: null,
     name: "postgres_baseline",
     description: "PostgreSQL security & compliance baseline",
-    version: "1.0.0",
-    is_active: true,
+    severity: "medium",
+    created_by: "admin",
+    updated_by: "admin",
     created_at: "2026-04-07T10:58:19Z",
     updated_at: "2026-04-07T10:58:19Z",
-    assignment: { key: "db", operator: "=", value: "postgres" },
+    version: "1.0.0",
+    is_active: true,
     rules: [
-      "tls-enable-check",
-      "max-connections-check",
-      "log-connections-check",
-      "log-disconnections-check",
-      "password-encryption-check",
+      "b1b2c3d4-e5f6-7890-abcd-ef1234567891",
+      "c1b2c3d4-e5f6-7890-abcd-ef1234567892",
+      "d1b2c3d4-e5f6-7890-abcd-ef1234567893",
+      "e1b2c3d4-e5f6-7890-abcd-ef1234567894",
+      "f1b2c3d4-e5f6-7890-abcd-ef1234567895",
     ],
   },
 ];
 
 // ─── State Snapshots (Evidence / Compliance Results) ──────────────────────────
-// Latest snapshot per rule per host (derived from dump)
 
 export const MOCK_STATE_SNAPSHOTS = [
   // yugabyte-node-01 (host: 0c3e9829-...)
   {
     id: "ba50ea50-86e6-4f6a-a51a-46b976461b27",
+    rule_id: "b1b2c3d4-e5f6-7890-abcd-ef1234567811",
     rule_name: "tls-enable-check",
     host_id: "0c3e9829-a255-4694-8f40-d6375ec98af0",
     host_name: "yugabyte-node-01",
@@ -325,6 +460,7 @@ export const MOCK_STATE_SNAPSHOTS = [
   },
   {
     id: "dae2e0ee-c2b7-4234-b569-aaf9853e0f10",
+    rule_id: "c1b2c3d4-e5f6-7890-abcd-ef1234567812",
     rule_name: "max-connections-check",
     host_id: "0c3e9829-a255-4694-8f40-d6375ec98af0",
     host_name: "yugabyte-node-01",
@@ -343,6 +479,7 @@ export const MOCK_STATE_SNAPSHOTS = [
   },
   {
     id: "bc790e8b-132e-43a3-b8df-d6a8be0575c4",
+    rule_id: "e1b2c3d4-e5f6-7890-abcd-ef1234567814",
     rule_name: "log-disconnections-check",
     host_id: "0c3e9829-a255-4694-8f40-d6375ec98af0",
     host_name: "yugabyte-node-01",
@@ -361,6 +498,7 @@ export const MOCK_STATE_SNAPSHOTS = [
   },
   {
     id: "f8664ad6-3a72-4d0b-84a8-c88bdbd7c664",
+    rule_id: "d1b2c3d4-e5f6-7890-abcd-ef1234567813",
     rule_name: "log-connections-check",
     host_id: "0c3e9829-a255-4694-8f40-d6375ec98af0",
     host_name: "yugabyte-node-01",
@@ -379,6 +517,7 @@ export const MOCK_STATE_SNAPSHOTS = [
   },
   {
     id: "78e109f1-1b0b-47f8-abb0-4712161d6af3",
+    rule_id: "f1b2c3d4-e5f6-7890-abcd-ef1234567815",
     rule_name: "password-encryption-check",
     host_id: "0c3e9829-a255-4694-8f40-d6375ec98af0",
     host_name: "yugabyte-node-01",
@@ -398,6 +537,7 @@ export const MOCK_STATE_SNAPSHOTS = [
   // postgres-node-01 / nginx (host: e178ffcd-...)
   {
     id: "87a51f07-816d-4dcf-a817-1baaf25fc20b",
+    rule_id: "b1b2c3d4-e5f6-7890-abcd-ef1234567821",
     rule_name: "tls-enable-check",
     host_id: "e178ffcd-9084-48a4-9cdb-4a5fe6ddd678",
     host_name: "postgres-node-01",
@@ -416,6 +556,7 @@ export const MOCK_STATE_SNAPSHOTS = [
   },
   {
     id: "bb41c392-1297-465e-a8f3-7c0d7e29a006",
+    rule_id: "c1b2c3d4-e5f6-7890-abcd-ef1234567822",
     rule_name: "tls-version-check",
     host_id: "e178ffcd-9084-48a4-9cdb-4a5fe6ddd678",
     host_name: "postgres-node-01",
@@ -431,6 +572,287 @@ export const MOCK_STATE_SNAPSHOTS = [
     snapshot_time: "2026-04-07T11:03:20Z",
     received_at: "2026-04-07T11:03:20Z",
     status: "non-compliant",
+  },
+];
+
+// ─── Stakeholders ─────────────────────────────────────────────────────────────
+
+export const MOCK_STAKEHOLDERS = [
+  {
+    id: "stake-1",
+    user_id: "sarah.j",
+    name: "Sarah Jenkins",
+    email: "sarah.j@enterprise.com",
+    organization: "Global Retail Corp",
+    created_at: "2026-04-01T10:00:00Z",
+    updated_at: "2026-04-01T10:00:00Z",
+  },
+  {
+    id: "stake-2",
+    user_id: "m.chen",
+    name: "Michael Chen",
+    email: "m.chen@fintech-solutions.io",
+    organization: "Fintech Solutions",
+    created_at: "2026-04-02T09:30:00Z",
+    updated_at: "2026-04-02T09:30:00Z",
+  },
+];
+
+// ─── Projects ─────────────────────────────────────────────────────────────────
+
+export const MOCK_PROJECTS = [
+  {
+    id: "p-customer-portal",
+    stakeholder_id: "stake-1",
+    name: "Customer Portal 2.0",
+    app_id: 101,
+    description: "External facing customer engagement platform",
+    status: "ACTIVE",
+    due_date: "2026-10-15T00:00:00Z",
+    created_by: "admin",
+    updated_by: "admin",
+    created_at: "2026-04-01T10:00:00Z",
+    updated_at: "2026-04-01T10:00:00Z",
+  },
+  {
+    id: "p-billing-core",
+    stakeholder_id: "stake-2",
+    name: "Billing Engine Core",
+    app_id: 202,
+    description: "Mission critical transaction processing engine",
+    status: "ACTIVE",
+    due_date: "2026-12-31T00:00:00Z",
+    created_by: "admin",
+    updated_by: "admin",
+    created_at: "2026-04-05T08:00:00Z",
+    updated_at: "2026-04-05T08:00:00Z",
+  },
+  {
+    id: "p-mobile-backend",
+    stakeholder_id: "stake-1",
+    name: "Mobile App Backend",
+    app_id: 303,
+    description: "API gateway and backend for mobile applications",
+    status: "ACTIVE",
+    due_date: "2026-09-30T00:00:00Z",
+    created_by: "admin",
+    updated_by: "admin",
+    created_at: "2026-04-10T14:20:00Z",
+    updated_at: "2026-04-10T14:20:00Z",
+  },
+];
+
+// ─── Audits ───────────────────────────────────────────────────────────────────
+
+export const MOCK_AUDITS = [
+  {
+    id: "SOC2-T2",
+    name: "SOC2 Type II",
+    description: "System and Organization Controls 2 Type II Compliance",
+    created_by: "admin",
+    updated_by: "admin",
+    created_at: "2026-01-01T00:00:00Z",
+    updated_at: "2026-01-01T00:00:00Z",
+  },
+  {
+    id: "ISO-27001",
+    name: "ISO 27001",
+    description: "Information Security Management System Standard",
+    created_by: "admin",
+    updated_by: "admin",
+    created_at: "2026-01-01T00:00:00Z",
+    updated_at: "2026-01-01T00:00:00Z",
+  },
+  {
+    id: "HIPAA",
+    name: "HIPAA Compliance",
+    description: "Health Insurance Portability and Accountability Act",
+    created_by: "admin",
+    updated_by: "admin",
+    created_at: "2026-01-01T00:00:00Z",
+    updated_at: "2026-01-01T00:00:00Z",
+  },
+];
+
+// ─── Audit Controls ───────────────────────────────────────────────────────────
+
+export const MOCK_AUDIT_CONTROLS = [
+  {
+    id: "ctrl-enc-rest",
+    audit_id: "SOC2-T2",
+    name: "Data Encryption at Rest",
+    description: "Ensure sensitive data is encrypted while stored on disk",
+    control_ref: "CC6.1",
+    created_at: "2026-01-15T10:00:00Z",
+    updated_at: "2026-01-15T10:00:00Z",
+  },
+  {
+    id: "ctrl-enc-transit",
+    audit_id: "ISO-27001",
+    name: "Data Encryption in Transit",
+    description: "Ensure data is encrypted during transmission over networks",
+    control_ref: "A.10.1.1",
+    created_at: "2026-01-15T10:00:00Z",
+    updated_at: "2026-01-15T10:00:00Z",
+  },
+];
+
+// ─── Project Audits ───────────────────────────────────────────────────────────
+
+export const MOCK_PROJECT_AUDITS = [
+  // Project 1: Customer Portal 2.0 -> SOC2, ISO, HIPAA
+  {
+    id: "pa-1",
+    project_id: "p-customer-portal",
+    audit_id: "SOC2-T2",
+    status: "IN_PROGRESS",
+    assigned_by: "admin",
+    assigned_at: "2026-04-05T10:00:00Z",
+    completed_at: null,
+  },
+  {
+    id: "pa-2",
+    project_id: "p-customer-portal",
+    audit_id: "ISO-27001",
+    status: "IN_PROGRESS",
+    assigned_by: "admin",
+    assigned_at: "2026-04-05T10:00:00Z",
+    completed_at: null,
+  },
+  {
+    id: "pa-3",
+    project_id: "p-customer-portal",
+    audit_id: "HIPAA",
+    status: "IN_PROGRESS",
+    assigned_by: "admin",
+    assigned_at: "2026-04-05T10:00:00Z",
+    completed_at: null,
+  },
+  // Project 2: Billing Engine Core -> SOC2, ISO, HIPAA
+  {
+    id: "pa-4",
+    project_id: "p-billing-core",
+    audit_id: "SOC2-T2",
+    status: "IN_PROGRESS",
+    assigned_by: "admin",
+    assigned_at: "2026-04-06T09:00:00Z",
+    completed_at: null,
+  },
+  {
+    id: "pa-5",
+    project_id: "p-billing-core",
+    audit_id: "ISO-27001",
+    status: "COMPLETED",
+    assigned_by: "admin",
+    assigned_at: "2026-04-06T09:00:00Z",
+    completed_at: "2026-04-20T17:00:00Z",
+  },
+  {
+    id: "pa-6",
+    project_id: "p-billing-core",
+    audit_id: "HIPAA",
+    status: "IN_PROGRESS",
+    assigned_by: "admin",
+    assigned_at: "2026-04-06T09:00:00Z",
+    completed_at: null,
+  },
+  // Project 3: Mobile App Backend -> SOC2 only
+  {
+    id: "pa-7",
+    project_id: "p-mobile-backend",
+    audit_id: "SOC2-T2",
+    status: "IN_PROGRESS",
+    assigned_by: "admin",
+    assigned_at: "2026-04-12T11:00:00Z",
+    completed_at: null,
+  },
+];
+
+// ─── Host Tags ────────────────────────────────────────────────────────────────
+
+export const MOCK_HOST_TAGS = [
+  {
+    id: "tag-1",
+    host_id: "0c3e9829-a255-4694-8f40-d6375ec98af0",
+    key: "env",
+    value: "dev",
+    source: "agent",
+    created_at: "2026-04-07T10:58:56Z",
+    updated_at: "2026-04-07T10:58:56Z",
+  },
+  {
+    id: "tag-2",
+    host_id: "0c3e9829-a255-4694-8f40-d6375ec98af0",
+    key: "database",
+    value: "yugabyte",
+    source: "agent",
+    created_at: "2026-04-07T10:58:56Z",
+    updated_at: "2026-04-07T10:58:56Z",
+  },
+  {
+    id: "tag-3",
+    host_id: "e178ffcd-9084-48a4-9cdb-4a5fe6ddd678",
+    key: "env",
+    value: "dev",
+    source: "agent",
+    created_at: "2026-04-07T10:59:15Z",
+    updated_at: "2026-04-07T10:59:15Z",
+  },
+  {
+    id: "tag-4",
+    host_id: "e178ffcd-9084-48a4-9cdb-4a5fe6ddd678",
+    key: "service",
+    value: "nginx",
+    source: "agent",
+    created_at: "2026-04-07T10:59:15Z",
+    updated_at: "2026-04-07T10:59:15Z",
+  },
+];
+
+// ─── Policy Versions ──────────────────────────────────────────────────────────
+
+export const MOCK_POLICY_VERSIONS = [
+  {
+    id: "pv-1",
+    policy_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567800",
+    version: "1.0.0",
+    is_active: true,
+    created_at: "2026-04-07T10:58:19Z",
+    updated_at: "2026-04-07T10:58:19Z",
+  },
+];
+
+// ─── Policy Rules ─────────────────────────────────────────────────────────────
+
+export const MOCK_POLICY_RULES = [
+  {
+    id: "pr-1",
+    policy_version_id: "pv-1",
+    rule_id: "b1b2c3d4-e5f6-7890-abcd-ef1234567811",
+    created_at: "2026-04-07T10:58:19Z",
+    updated_at: "2026-04-07T10:58:19Z",
+  },
+  {
+    id: "pr-2",
+    policy_version_id: "pv-1",
+    rule_id: "c1b2c3d4-e5f6-7890-abcd-ef1234567812",
+    created_at: "2026-04-07T10:58:19Z",
+    updated_at: "2026-04-07T10:58:19Z",
+  },
+];
+
+// ─── Host Policy Assignments ──────────────────────────────────────────────────
+
+export const MOCK_HOST_POLICY_ASSIGNMENTS = [
+  {
+    id: "hpa-1",
+    host_id: "0c3e9829-a255-4694-8f40-d6375ec98af0",
+    policy_version_id: "pv-1",
+    project_audit_id: "pa-1",
+    status: "ACTIVE",
+    assigned_at: "2026-04-07T10:58:19Z",
+    activated_at: "2026-04-07T11:00:00Z",
+    superseded_at: null,
   },
 ];
 
@@ -479,7 +901,6 @@ export const MOCK_STATS = {
     ],
   },
   compliance: {
-    // out of 7 latest snapshots: 2 compliant (max-conn + password-enc on yugabyte), 5 non-compliant
     total_checks: 7,
     compliant: 2,
     non_compliant: 5,
@@ -533,7 +954,6 @@ export const MOCK_ACTIVITY = [
 ];
 
 // ─── Compliance Timeline (snapshots grouped by rule — for charts) ─────────────
-// Tracks how many checks passed vs failed per rule across all hosts
 
 export const MOCK_COMPLIANCE_TIMELINE = [
   { rule: "tls-enable-check", compliant: 0, non_compliant: 2 },
@@ -545,7 +965,6 @@ export const MOCK_COMPLIANCE_TIMELINE = [
 ];
 
 // ─── Weekly Snapshot Activity (how many state_snapshots received per day) ─────
-// All snapshots in dump are from 2026-04-07 (Tuesday)
 
 export const MOCK_WEEKLY_EVIDENCE = [
   { day: "Mon", count: 0 },

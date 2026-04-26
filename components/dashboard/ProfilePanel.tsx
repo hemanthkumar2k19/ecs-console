@@ -1,26 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { UserCircle, Mail, Building2, Clock, LogOut, ChevronRight, Bell, Shield, PanelRightClose, PanelRightOpen } from "lucide-react";
+import { getSession, clearSession } from "@/lib/session";
+import { AuthUser } from "@/lib/api";
 
 export default function ProfilePanel() {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const router = useRouter();
+  const [user, setUser] = useState<AuthUser | null>(null);
+
+  useEffect(() => {
+    setUser(getSession());
+  }, []);
 
   const handleLogout = () => {
-    // In a real app, you'd clear session/tokens here
+    clearSession();
     router.push("/");
   };
 
-  // Normally this would come from a context or API call
-  const user = {
-    name: "Admin User",
-    userId: "admin",
-    email: "admin@ecs.internal",
-    department: "Operations",
-    avatar: "AU",
-    lastLogin: "Today, 08:30 AM",
+  const displayUser = user ?? {
+    name: "—",
+    userId: "—",
+    email: "—",
+    department: "—",
+    avatar: "?",
+    lastLogin: "—",
+    role: "—",
   };
 
   const AccountItem = ({ icon: Icon, label, value }: { icon: any, label: string, value: string }) => (
@@ -57,8 +64,8 @@ export default function ProfilePanel() {
             <span className="absolute top-2 right-2 w-2 h-2 bg-primary-500 rounded-full border-2 border-surface-1" />
           </button>
           
-          <div className="w-10 h-10 rounded-xl bg-primary-500 text-white flex items-center justify-center font-bold shadow-sm ring-2 ring-primary-50" title={`${user.name}\n${user.department}`}>
-            {user.avatar}
+          <div className="w-10 h-10 rounded-xl bg-primary-500 text-white flex items-center justify-center font-bold shadow-sm ring-2 ring-primary-50" title={`${displayUser.name}\n${displayUser.department}`}>
+            {displayUser.avatar}
           </div>
           
           <div className="w-8 h-px bg-neutral-100 my-2" />
@@ -89,20 +96,20 @@ export default function ProfilePanel() {
 
           <div className="flex flex-col items-center text-center mb-10">
             <div className="w-20 h-20 rounded-3xl bg-primary-500 text-white flex items-center justify-center text-2xl font-bold shadow-lg mb-4 ring-4 ring-primary-50">
-              {user.avatar}
+              {displayUser.avatar}
             </div>
-            <h3 className="text-lg font-bold text-text-primary">{user.name}</h3>
+            <h3 className="text-lg font-bold text-text-primary">{displayUser.name}</h3>
             <p className="text-xs text-primary-600 font-bold bg-primary-50 px-2 py-0.5 rounded mt-1 uppercase tracking-tight italic">
-              Super Admin
+              {displayUser.role ?? "User"}
             </p>
           </div>
 
           <div className="space-y-1 mb-10 overflow-hidden">
             <h4 className="text-xs font-bold text-text-muted uppercase tracking-widest px-1 mb-3">Professional Info</h4>
-            <AccountItem icon={UserCircle} label="User ID" value={user.userId} />
-            <AccountItem icon={Mail} label="Email Address" value={user.email} />
-            <AccountItem icon={Building2} label="Department" value={user.department} />
-            <AccountItem icon={Clock} label="Last Session" value={user.lastLogin} />
+            <AccountItem icon={UserCircle} label="User ID" value={displayUser.userId} />
+            <AccountItem icon={Mail} label="Email Address" value={displayUser.email} />
+            <AccountItem icon={Building2} label="Department" value={displayUser.department} />
+            <AccountItem icon={Clock} label="Last Session" value={displayUser.lastLogin} />
           </div>
 
           <div className="space-y-3 flex-1">

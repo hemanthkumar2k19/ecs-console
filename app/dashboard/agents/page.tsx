@@ -27,14 +27,14 @@ export default function AgentsPage() {
   };
 
   const renderRow = (agent: Agent) => (
-    <tr key={agent.id} className="hover:bg-surface-hover transition-colors group">
+    <tr key={agent.id} className="hover:bg-surface-hover transition-colors group cursor-pointer">
       <td className="px-5 py-4">
-        <div className="flex items-center gap-2">
+        <Link href={`/dashboard/agents/${agent.id}`} className="flex items-center gap-2 hover:opacity-80">
           <div className="w-7 h-7 rounded-lg bg-primary-50 flex items-center justify-center flex-shrink-0">
             <Bot className="w-3.5 h-3.5 text-primary-600" />
           </div>
-          <span className="text-[10px] text-text-muted font-mono">{agent.id.slice(0, 16)}…</span>
-        </div>
+          <span className="text-[10px] text-text-muted font-mono group-hover:text-primary-600 transition-colors">{agent.id.slice(0, 16)}…</span>
+        </Link>
       </td>
       <td className="px-5 py-4">
         <div className="flex items-center gap-1.5">

@@ -16,7 +16,7 @@
 
 ## Fallback Priority (Two-Tier)
 
-```
+```text
 HTTP REST API  (NEXT_PUBLIC_API_BASE_URL is set)
       ↓ on fetch error / 4xx / 5xx
 Mock Data      (always available)
@@ -34,7 +34,7 @@ Mock Data      (always available)
 - **Content-Type**: `application/json`
 - **Auth**: Bearer token in `Authorization` header (once auth endpoint is live)
 - **Timestamps**: ISO 8601 UTC strings, e.g. `"2026-04-07T10:58:56Z"`
-- **IDs**: UUID v4 strings
+- **IDs**: UUID v4 strings, or namespaced string IDs (e.g. `"comp-yugabyte"`)
 - **Errors**: `{ "error": "human-readable message" }` with appropriate HTTP status
 
 ---
@@ -66,16 +66,6 @@ Authenticate a user and return their profile.
 }
 ```
 
-**Error Responses**
-| Status | Body |
-|---|---|
-| `401` | `{ "error": "Invalid credentials" }` |
-| `422` | `{ "error": "userId and password are required" }` |
-
-> [!NOTE]
-> `avatar` is a two-letter initials string used for the UI avatar component.  
-> `role` is one of `"admin"` | `"analyst"`.
-
 ---
 
 ## 2. Dashboard
@@ -94,7 +84,7 @@ Aggregate counts for the top-level dashboard cards.
     "trend": 0,
     "breakdown": [
       { "label": "YugabyteDB", "value": 1, "color": "#F59E0B" },
-      { "label": "PostgreSQL",  "value": 1, "color": "#FB923C" }
+      { "label": "PostgreSQL", "value": 1, "color": "#FB923C" }
     ]
   },
   "agents": {
@@ -103,9 +93,7 @@ Aggregate counts for the top-level dashboard cards.
     "offline": 0,
     "trend": 0,
     "breakdown": [
-      { "label": "Active",   "value": 2, "color": "#22C55E" },
-      { "label": "Degraded", "value": 0, "color": "#F59E0B" },
-      { "label": "Offline",  "value": 0, "color": "#EF4444" }
+      { "label": "Active", "value": 2, "color": "#22C55E" }
     ]
   },
   "policies": {
@@ -114,18 +102,14 @@ Aggregate counts for the top-level dashboard cards.
     "draft": 0,
     "trend": 0,
     "breakdown": [
-      { "label": "yugabyte_baseline", "value": 1, "color": "#F59E0B" },
-      { "label": "nginx_baseline",    "value": 1, "color": "#3B82F6" },
-      { "label": "postgres_baseline", "value": 1, "color": "#FB923C" }
+      { "label": "yugabyte_baseline", "value": 1, "color": "#F59E0B" }
     ]
   },
   "rules": {
     "total": 12,
     "active": 12,
     "breakdown": [
-      { "label": "Critical", "value": 2, "color": "#EF4444" },
-      { "label": "High",     "value": 5, "color": "#F59E0B" },
-      { "label": "Medium",   "value": 5, "color": "#3B82F6" }
+      { "label": "Critical", "value": 2, "color": "#EF4444" }
     ]
   },
   "compliance": {
@@ -134,14 +118,12 @@ Aggregate counts for the top-level dashboard cards.
     "non_compliant": 5,
     "trend": -5,
     "breakdown": [
-      { "label": "Compliant",     "value": 2, "color": "#22C55E" },
+      { "label": "Compliant", "value": 2, "color": "#22C55E" },
       { "label": "Non-Compliant", "value": 5, "color": "#EF4444" }
     ]
   }
 }
 ```
-
----
 
 ### `GET /api/v1/dashboard/activity`
 
@@ -159,50 +141,40 @@ Recent compliance events for the activity feed.
 ]
 ```
 
-**`type` enum**: `"info"` | `"success"` | `"warning"` | `"danger"`
-
----
-
 ### `GET /api/v1/dashboard/weekly-evidence`
 
 Evidence collection counts per day of the current week (Mon–Sun).
-
-**Response `200 OK`**
-```json
-[
-  { "day": "Mon", "count": 0 },
-  { "day": "Tue", "count": 26 },
-  { "day": "Wed", "count": 0 },
-  { "day": "Thu", "count": 0 },
-  { "day": "Fri", "count": 0 },
-  { "day": "Sat", "count": 0 },
-  { "day": "Sun", "count": 0 }
-]
-```
-
----
 
 ### `GET /api/v1/dashboard/compliance-timeline`
 
 Per-rule compliance totals across all hosts (for the bar/line chart).
 
+---
+
+## 3. Core Infrastructure
+
+### `GET /api/v1/components`
+### `GET /api/v1/components/:id`
+
+List supported system components/architectures.
+
 **Response `200 OK`**
 ```json
 [
-  { "rule": "tls-enable-check",          "compliant": 0, "non_compliant": 2 },
-  { "rule": "max-connections-check",     "compliant": 1, "non_compliant": 0 },
-  { "rule": "log-connections-check",     "compliant": 0, "non_compliant": 1 },
-  { "rule": "log-disconnections-check",  "compliant": 0, "non_compliant": 1 },
-  { "rule": "password-encryption-check", "compliant": 1, "non_compliant": 0 },
-  { "rule": "tls-version-check",         "compliant": 0, "non_compliant": 1 }
+  {
+    "id": "comp-yugabyte",
+    "name": "yugabyte",
+    "display_name": "YugabyteDB",
+    "type": "database",
+    "description": "Distributed SQL Database",
+    "created_at": "2026-04-07T10:00:00Z",
+    "updated_at": "2026-04-07T10:00:00Z"
+  }
 ]
 ```
 
----
-
-## 3. Hosts
-
 ### `GET /api/v1/hosts`
+### `GET /api/v1/hosts/:id`
 
 List all registered hosts.
 
@@ -211,47 +183,30 @@ List all registered hosts.
 [
   {
     "id": "0c3e9829-a255-4694-8f40-d6375ec98af0",
+    "project_id": "p-customer-portal",
+    "component_id": "comp-yugabyte",
     "name": "yugabyte-node-01",
     "ip": "10.89.0.10",
     "os_family": "Linux",
     "os_version": "Ubuntu 22.04",
     "env": "dev",
-    "project_id": "ps-postgres",
     "type": "yugabyte",
     "created_at": "2026-04-07T10:58:56Z",
     "updated_at": "2026-04-07T10:58:56Z",
     "tags": [
-      { "key": "env",      "value": "dev",      "source": "agent" },
-      { "key": "database", "value": "yugabyte",  "source": "agent" }
+      { "key": "env", "value": "dev", "source": "agent" },
+      { "key": "database", "value": "yugabyte", "source": "agent" }
     ]
   }
 ]
 ```
 
-**Tag object**
-| Field | Type | Description |
-|---|---|---|
-| `key` | `string` | Tag name |
-| `value` | `string` | Tag value |
-| `source` | `string` | Origin: `"agent"` | `"manual"` | `"imported"` |
-
----
-
-### `GET /api/v1/hosts/:id`
-
-Get a single host by UUID.
-
-**Response `200 OK`** — same shape as a single element from the list above.
-
-**Error**: `404 { "error": "Host not found" }`
-
----
-
-## 4. Agents
+*(Note: The frontend expects backend to eventually implement `POST /api/v1/hosts` and an endpoint to update host tags `PUT /api/v1/hosts/:id/tags`)*
 
 ### `GET /api/v1/agents`
+### `GET /api/v1/agents/:id`
 
-List all agents.
+List all osquery/local agents running on hosts.
 
 **Response `200 OK`**
 ```json
@@ -268,87 +223,55 @@ List all agents.
     "updated_at": "2026-04-07T11:02:56Z",
     "osquery_instance": {
       "id": "8ab5816f-ae9e-4dce-a7a9-19430722021e",
+      "agent_id": "1368cc28-ff01-4f64-8545-12b0ba5cd0f2",
+      "host_id": "0c3e9829-a255-4694-8f40-d6375ec98af0",
+      "node_key": "node-key-1",
       "host_identifier": "0c3e9829-a255-4694-8f40-d6375ec98af0",
-      "is_active": true
+      "is_active": true,
+      "created_at": "2026-04-07T10:58:56Z",
+      "updated_at": "2026-04-07T11:02:56Z"
     }
   }
 ]
 ```
 
-**`status` enum**: `"active"` | `"inactive"` | `"degraded"`
-
-> [!NOTE]
-> `osquery_instance` may be `null` if no osquery process is registered for the agent.
-
 ---
 
-### `GET /api/v1/agents/:id`
-
-Get a single agent by UUID.
-
-**Response `200 OK`** — same shape as a single element from the list above.
-
-**Error**: `404 { "error": "Agent not found" }`
-
----
-
-## 5. Policies
+## 4. Compliance & Security
 
 ### `GET /api/v1/policies`
+### `GET /api/v1/policies/:id`
 
-List all active policy versions.
+List policy baselines mapping to specific components.
 
 **Response `200 OK`**
 ```json
 [
   {
     "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567800",
+    "component_id": "comp-yugabyte",
+    "audit_control_id": null,
     "name": "yugabyte_baseline",
     "description": "YugaByteDB security & compliance baseline",
-    "version": "1.0.0",
-    "is_active": true,
+    "severity": "medium",
+    "created_by": "admin",
+    "updated_by": "admin",
     "created_at": "2026-04-07T10:58:19Z",
     "updated_at": "2026-04-07T10:58:19Z",
-    "assignment": {
-      "key": "database",
-      "operator": "=",
-      "value": "yugabyte"
-    },
+    "version": "1.0.0",
+    "is_active": true,
     "rules": [
-      "tls-enable-check",
-      "max-connections-check",
-      "log-connections-check",
-      "log-disconnections-check",
-      "password-encryption-check"
+      "b1b2c3d4-e5f6-7890-abcd-ef1234567811",
+      "c1b2c3d4-e5f6-7890-abcd-ef1234567812"
     ]
   }
 ]
 ```
 
-**Assignment object** — defines which hosts this policy targets via tag matching:
-| Field | Type | Description |
-|---|---|---|
-| `key` | `string` | Host tag key, e.g. `"database"` |
-| `operator` | `string` | `"="` | `"!="` | `"in"` |
-| `value` | `string` | Tag value to match |
-
-**`rules`** is an array of rule **name** strings (not IDs).
-
----
-
-### `GET /api/v1/policies/:id`
-
-Get a single policy by UUID.
-
-**Error**: `404 { "error": "Policy not found" }`
-
----
-
-## 6. Rules
-
 ### `GET /api/v1/rules`
+### `GET /api/v1/rules?policy={policyName}`
 
-List all rules across all policies.
+List individual compliance checks/rules.
 
 **Response `200 OK`**
 ```json
@@ -363,55 +286,26 @@ List all rules across all policies.
     "severity": "high",
     "is_active": true,
     "created_at": "2026-04-07T10:58:19Z",
+    "updated_at": "2026-04-07T10:58:19Z",
     "policy": "yugabyte_baseline"
   }
 ]
 ```
 
-**`severity` enum**: `"critical"` | `"high"` | `"medium"` | `"low"`
-**`evaluation_mode` enum**: `"scheduled"` | `"event-driven"`
-
-> [!NOTE]
-> `policy` is the **name** of the parent policy, not its ID. The same rule name (e.g. `tls-enable-check`) may appear multiple times if it belongs to multiple policies.
-
----
-
-### `GET /api/v1/rules?policy={policyName}`
-
-Filter rules by policy name.
-
-**Query Params**
-| Param | Type | Required | Description |
-|---|---|---|---|
-| `policy` | `string` | No | Filter by policy name, e.g. `yugabyte_baseline` |
-
----
-
-### `GET /api/v1/rules/:id`
-
-Get a single rule by UUID.
-
-**Error**: `404 { "error": "Rule not found" }`
-
----
-
-## 7. State Snapshots (Compliance Evidence)
-
 ### `GET /api/v1/snapshots`
+### `GET /api/v1/snapshots?host_id={hostId}`
 
-List the latest compliance snapshots (max 100, ordered by `snapshot_time DESC`).
+List evidence collection snapshots detailing compliance state for individual rules on hosts.
 
 **Response `200 OK`**
 ```json
 [
   {
     "id": "ba50ea50-86e6-4f6a-a51a-46b976461b27",
+    "rule_id": "b1b2c3d4-e5f6-7890-abcd-ef1234567811",
     "rule_name": "tls-enable-check",
     "host_id": "0c3e9829-a255-4694-8f40-d6375ec98af0",
     "host_name": "yugabyte-node-01",
-    "status": "non-compliant",
-    "snapshot_time": "2026-04-07T11:03:02Z",
-    "received_at": "2026-04-07T11:03:02Z",
     "columns": [
       {
         "name": "ssl",
@@ -420,43 +314,52 @@ List the latest compliance snapshots (max 100, ordered by `snapshot_time DESC`).
         "category": "Connections and Authentication / SSL",
         "verified_at": "2026-04-07T11:03:02Z"
       }
-    ]
+    ],
+    "snapshot_time": "2026-04-07T11:03:02Z",
+    "received_at": "2026-04-07T11:03:02Z",
+    "status": "non-compliant"
   }
 ]
 ```
 
-**`status` enum**: `"compliant"` | `"non-compliant"` | `"unknown"`
+---
 
-**Column object**
-| Field | Type | Description |
-|---|---|---|
-| `name` | `string` | Setting/config key name |
-| `setting` | `string` | Observed value |
-| `source` | `string` | Value origin, e.g. `"default"`, `"configuration file"`, `"nginx_runtime"` |
-| `category` | `string` | Grouping label for UI display |
-| `verified_at` | `string` | ISO timestamp when this setting was read |
+## 5. Projects & Governance
+
+The following endpoints are documented as available via REST wrapper. They map to internal entities for auditing, ownership mapping, and project associations:
+
+### `GET /api/v1/projects`
+List projects tracked for internal audits.
+
+### `GET /api/v1/stakeholders`
+List business stakeholders or application owners.
+
+### `GET /api/v1/audits`
+List formal compliance audits (e.g., SOC2, ISO 27001).
+
+### `GET /api/v1/audit-controls`
+List specific controls required for compliance audits.
+
+### `GET /api/v1/project-audits`
+List status and mappings of audits applicable to specific projects.
 
 ---
 
-### `GET /api/v1/snapshots?host_id={hostId}`
+## 6. Metadata & Assignments
 
-Filter snapshots by host UUID.
+The following endpoints expose internal join-tables and metadata tagging for more advanced queries:
 
-**Query Params**
-| Param | Type | Required | Description |
-|---|---|---|---|
-| `host_id` | `string` | No | Filter by host UUID |
-| `rule_name` | `string` | No | Filter by rule name |
-| `status` | `string` | No | `"compliant"` or `"non-compliant"` |
-| `limit` | `integer` | No | Default `100`, max `500` |
+### `GET /api/v1/host-tags`
+List all tags registered against hosts.
 
----
+### `GET /api/v1/policy-versions`
+List version history of compliance policies.
 
-### `GET /api/v1/snapshots/:id`
+### `GET /api/v1/policy-rules`
+List join table entries mapping policies to rules.
 
-Get a single snapshot by UUID.
-
-**Error**: `404 { "error": "Snapshot not found" }`
+### `GET /api/v1/host-policy-assignments`
+List join table entries assigning specific policies to individual hosts.
 
 ---
 
@@ -466,96 +369,14 @@ Implement endpoints in this order so the UI can progressively light up:
 
 | Priority | Endpoint | Reason |
 |---|---|---|
-| 1 | `GET /hosts` | Core entity, used as FK in agents & snapshots |
-| 2 | `GET /agents` | Needed for Agents page |
-| 3 | `GET /policies` | Needed for Policies page |
-| 4 | `GET /rules` | Needed for Rules page |
-| 5 | `GET /snapshots` | Needed for Compliance page |
-| 6 | `GET /dashboard/stats` | Aggregation — can derive from above |
-| 7 | `GET /dashboard/activity` | Stream / derived events |
-| 8 | `GET /dashboard/compliance-timeline` | Chart data |
-| 9 | `GET /dashboard/weekly-evidence` | Chart data |
-| 10 | `POST /auth/login` | Auth — set last so frontend doesn't break |
+| 1 | `GET /components` | Foundation for projects and policies |
+| 2 | `GET /hosts` | Core entity, used as FK in agents & snapshots |
+| 3 | `GET /agents` | Needed for Agents page |
+| 4 | `GET /policies` | Needed for Policies page |
+| 5 | `GET /rules` | Needed for Rules page |
+| 6 | `GET /snapshots` | Needed for Compliance page |
+| 7 | `GET /dashboard/*` | Aggregations — derive from above |
+| 8 | `GET /projects`, `GET /audits` | Governance metadata layers |
+| 9 | `POST /auth/login` | Auth — set last so frontend doesn't break |
 
 ---
-
-## OpenAPI Snippet (Minimal)
-
-```yaml
-openapi: "3.1.0"
-info:
-  title: ECS Console API
-  version: "1.0.0"
-servers:
-  - url: "{baseUrl}/api/v1"
-    variables:
-      baseUrl:
-        default: "http://localhost:8080"
-paths:
-  /hosts:
-    get:
-      summary: List hosts
-      responses:
-        "200":
-          description: Array of Host objects
-  /agents:
-    get:
-      summary: List agents
-      responses:
-        "200":
-          description: Array of Agent objects
-  /policies:
-    get:
-      summary: List active policies
-      responses:
-        "200":
-          description: Array of Policy objects
-  /rules:
-    get:
-      summary: List rules
-      parameters:
-        - name: policy
-          in: query
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Array of Rule objects
-  /snapshots:
-    get:
-      summary: List compliance snapshots
-      parameters:
-        - name: host_id
-          in: query
-          schema:
-            type: string
-            format: uuid
-      responses:
-        "200":
-          description: Array of StateSnapshot objects
-  /dashboard/stats:
-    get:
-      summary: Dashboard aggregate statistics
-      responses:
-        "200":
-          description: DashboardStats object
-  /auth/login:
-    post:
-      summary: Authenticate user
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                userId:
-                  type: string
-                password:
-                  type: string
-      responses:
-        "200":
-          description: AuthUser object
-        "401":
-          description: Invalid credentials
-```

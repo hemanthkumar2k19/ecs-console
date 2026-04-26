@@ -1,16 +1,24 @@
-# Task Report: Fix Profile Panel Visibility
+# AI Chat Assistant Implementation Report
 
 ## Files Created
-- None
+- `types/chat.ts`: Defines interfaces for messages, agent states, and action proposals.
+- `hooks/use-chat-stream.ts`: Contains the `useChatStream` hook to manage local chat state and simulate token-by-token mock streaming and latency.
+- `components/chat/chat-fab.tsx`: The Floating Action Button used as the trigger for the AI Assistant.
+- `components/chat/chat-panel.tsx`: The sliding overlay containing the message history, input logic, state indicator, FAQ suggestions, and Action Proposal confirmation UI.
+- `components/chat/chat-wrapper.tsx`: A client wrapper managing the open/close state between the FAB and Panel.
 
 ## Files Modified
-- `components/dashboard/ProfilePanel.tsx`
+- `app/layout.tsx`: Added the `<ChatWrapper />` inside the main `<body>` so the assistant is available on every page.
+- `package.json` / `bun.lockb`: Installed `react-markdown` and `remark-gfm` to render markdown properly inside agent messages.
 
 ## Explanation of Changes
-The Profile Panel (right-side account section) was originally configured with Tailwind classes `hidden 2xl:flex`. This meant it would only render on extremely large displays (1536px width or greater). On smaller laptops or devices, the breakpoint hid the entire section, causing it to disappear without any errors. 
-
-To fix this, the breakpoint was adjusted from `2xl:flex` to `lg:flex`. The account section will now properly render on standard desktop screens and laptops (1024px width or greater) while still gracefully hiding on smaller tablets or mobile devices to prevent layout cramping.
+- Integrated a global Chat panel following the console's existing design language.
+- Configured real-time mock streaming capabilities, showcasing states like `thinking`, `searching`, `querying`, `executing`, and `writing`.
+- Developed an Action Proposal card feature that renders inline whenever a destructive command is parsed, requiring user confirmation before completion.
+- Packaged the logic within standard `shadcn/ui` components and `lucide-react` icons to ensure visual consistency and code reusability.
 
 ## Suggested Next Improvements
-- Implement a mobile navigation drawer (hamburger menu) so users on tablets and mobile devices can still access their profile and account settings when the side panels are hidden.
-- Consider making the ProfilePanel responsive by keeping it collapsed on smaller screens instead of completely hiding it, to maintain feature parity across different screen sizes.
+- Connect the `useChatStream` hook to a real backend endpoint (e.g., `/api/chat`) implementing a proper EventSource or ReadableStream handler.
+- Save the session messages to local storage or an external database to persist conversations across reloads.
+- Add support for code block syntax highlighting inside the `react-markdown` setup.
+- Convert the FAQ dummy chips to query actual routes or dynamically read the page context to offer localized suggestions.

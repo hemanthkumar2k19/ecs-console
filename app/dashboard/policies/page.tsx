@@ -49,20 +49,20 @@ export default function PoliciesPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Assignment */}
+        {/* Component Binding */}
         <div className="rounded-lg bg-surface-2 border border-neutral-100 p-3">
           <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2 flex items-center gap-1">
-            <Tag className="w-3 h-3" /> Assignment Selector
+            <Tag className="w-3 h-3" /> Component Binding
           </p>
           <div className="flex items-center gap-1.5 flex-wrap">
             <span className="text-xs font-bold text-text-primary bg-surface-1 border border-neutral-200 px-2 py-0.5 rounded font-mono">
-              {policy.assignment?.key}
+              Component ID
             </span>
             <span className="text-xs text-text-muted font-mono">
-              {policy.assignment?.operator}
+              =
             </span>
-            <span className="text-xs font-bold text-primary-700 bg-primary-50 border border-primary-200 px-2 py-0.5 rounded font-mono">
-              {policy.assignment?.value}
+            <span className="text-xs font-bold text-primary-700 bg-primary-50 border border-primary-200 px-2 py-0.5 rounded font-mono truncate max-w-[150px]" title={policy.component_id}>
+              {policy.component_id}
             </span>
           </div>
         </div>

@@ -3,22 +3,54 @@
 import { useEffect, useState, Fragment } from "react";
 import Link from "next/link";
 import { ArrowLeft, Monitor, Tag, Cpu, Globe } from "lucide-react";
-import { getHosts, Host } from "@/lib/api";
+import { getHosts, createHost, Host } from "@/lib/api";
 import { useDataTable } from "@/hooks/useDataTable";
 import DataTableToolbar from "@/components/dashboard/DataTableToolbar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Plus } from "lucide-react";
+
 
 export default function HostsPage() {
   const [hosts, setHosts] = useState<Host[]>([]);
   const [loading, setLoading] = useState(true);
+  const [openAddModal, setOpenAddModal] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    ip: "",
+    os_family: "Linux",
+    os_version: "Ubuntu 22.04",
+    env: "dev",
+    type: "postgres",
+    project_id: "",
+    component_id: ""
+  });
 
   const table = useDataTable(hosts, "name");
 
-  useEffect(() => {
+  const loadHosts = () => {
     getHosts().then((data) => {
       setHosts(data);
       setLoading(false);
     });
+  };
+
+  useEffect(() => {
+    loadHosts();
   }, []);
+
+  const handleAddHost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await createHost(formData);
+    setOpenAddModal(false);
+    setFormData({
+      name: "", ip: "", os_family: "Linux", os_version: "Ubuntu 22.04",
+      env: "dev", type: "postgres", project_id: "", component_id: ""
+    });
+    setLoading(true);
+    loadHosts();
+  };
 
   const typeColor: Record<string, string> = {
     yugabyte: "bg-amber-100 text-amber-700 border-amber-200",
@@ -26,17 +58,17 @@ export default function HostsPage() {
   };
 
   const renderRow = (host: Host) => (
-    <tr key={host.id} className="hover:bg-surface-hover transition-colors group">
+    <tr key={host.id} className="hover:bg-surface-hover transition-colors group cursor-pointer">
       <td className="px-5 py-4">
-        <div className="flex items-center gap-2">
+        <Link href={`/dashboard/hosts/${host.id}`} className="flex items-center gap-2 hover:opacity-80">
           <div className="w-7 h-7 rounded-lg bg-primary-50 flex items-center justify-center flex-shrink-0">
             <Cpu className="w-3.5 h-3.5 text-primary-600" />
           </div>
           <div>
-            <p className="font-semibold text-text-primary text-xs">{host.name}</p>
+            <p className="font-semibold text-text-primary text-xs group-hover:text-primary-600 transition-colors">{host.name}</p>
             <p className="text-[10px] text-text-muted font-mono">{host.id.slice(0, 8)}…</p>
           </div>
-        </div>
+        </Link>
       </td>
       <td className="px-5 py-4">
         <span className={`text-[10px] font-bold px-2 py-1 rounded border uppercase tracking-wide ${typeColor[host.type] ?? "bg-neutral-100 text-neutral-600 border-neutral-200"}`}>
@@ -62,6 +94,9 @@ export default function HostsPage() {
       </td>
       <td className="px-5 py-4">
         <span className="text-xs text-text-secondary font-mono">{host.project_id}</span>
+      </td>
+      <td className="px-5 py-4">
+        <span className="text-xs text-text-muted font-mono">{host.component_id}</span>
       </td>
       <td className="px-5 py-4">
         <div className="flex flex-wrap gap-1">
@@ -94,11 +129,101 @@ export default function HostsPage() {
           </Link>
           <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Back to Dashboard</span>
         </div>
-        <div className="flex items-center gap-3 mb-1">
-          <div className="w-9 h-9 rounded-xl bg-primary-50 flex items-center justify-center">
-            <Monitor className="w-5 h-5 text-primary-600" />
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-primary-50 flex items-center justify-center">
+              <Monitor className="w-5 h-5 text-primary-600" />
+            </div>
+            <h1 className="text-2xl font-bold text-text-primary">Hosts</h1>
           </div>
-          <h1 className="text-2xl font-bold text-text-primary">Hosts</h1>
+          
+          <Dialog open={openAddModal} onOpenChange={setOpenAddModal}>
+            <DialogTrigger asChild>
+              <Button className="gap-2 bg-amber-500 hover:bg-amber-600 text-white shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] font-semibold">
+                <Plus className="w-4 h-4" /> Add Host
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[460px] p-0 overflow-hidden">
+              <form onSubmit={handleAddHost}>
+                {/* Modal header */}
+                <div className="px-6 py-5 border-b border-neutral-100 bg-neutral-50">
+                  <DialogHeader>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+                        <Monitor className="w-4 h-4 text-amber-600" />
+                      </div>
+                      <div>
+                        <DialogTitle className="text-base font-bold text-neutral-900">Add New Host</DialogTitle>
+                        <p className="text-[11px] text-neutral-500 mt-0.5">Register a new infrastructure host to the console.</p>
+                      </div>
+                    </div>
+                  </DialogHeader>
+                </div>
+
+                {/* Fields */}
+                <div className="px-6 py-5 space-y-5">
+                  {/* Identity */}
+                  <div className="space-y-3">
+                    <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Identity</p>
+                    <div className="grid gap-1.5">
+                      <label className="text-[11px] font-semibold text-neutral-700">Host Name <span className="text-red-400">*</span></label>
+                      <Input required placeholder="e.g. db-node-01" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="h-9 text-sm" />
+                    </div>
+                    <div className="grid gap-1.5">
+                      <label className="text-[11px] font-semibold text-neutral-700">IP Address <span className="text-red-400">*</span></label>
+                      <Input required placeholder="e.g. 10.0.1.12" value={formData.ip} onChange={e => setFormData({...formData, ip: e.target.value})} className="h-9 text-sm font-mono" />
+                    </div>
+                  </div>
+
+                  {/* OS */}
+                  <div className="space-y-3">
+                    <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Operating System</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="grid gap-1.5">
+                        <label className="text-[11px] font-semibold text-neutral-700">OS Family <span className="text-red-400">*</span></label>
+                        <Input required placeholder="Linux" value={formData.os_family} onChange={e => setFormData({...formData, os_family: e.target.value})} className="h-9 text-sm" />
+                      </div>
+                      <div className="grid gap-1.5">
+                        <label className="text-[11px] font-semibold text-neutral-700">OS Version <span className="text-red-400">*</span></label>
+                        <Input required placeholder="Ubuntu 22.04" value={formData.os_version} onChange={e => setFormData({...formData, os_version: e.target.value})} className="h-9 text-sm" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Config */}
+                  <div className="space-y-3">
+                    <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Configuration</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="grid gap-1.5">
+                        <label className="text-[11px] font-semibold text-neutral-700">Environment <span className="text-red-400">*</span></label>
+                        <Input required placeholder="dev / prod" value={formData.env} onChange={e => setFormData({...formData, env: e.target.value})} className="h-9 text-sm" />
+                      </div>
+                      <div className="grid gap-1.5">
+                        <label className="text-[11px] font-semibold text-neutral-700">Type <span className="text-red-400">*</span></label>
+                        <Input required placeholder="postgres / yugabyte" value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} className="h-9 text-sm" />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="grid gap-1.5">
+                        <label className="text-[11px] font-semibold text-neutral-700">Project ID</label>
+                        <Input placeholder="p-xxx" value={formData.project_id} onChange={e => setFormData({...formData, project_id: e.target.value})} className="h-9 text-sm font-mono" />
+                      </div>
+                      <div className="grid gap-1.5">
+                        <label className="text-[11px] font-semibold text-neutral-700">Component ID</label>
+                        <Input placeholder="comp-xxx" value={formData.component_id} onChange={e => setFormData({...formData, component_id: e.target.value})} className="h-9 text-sm font-mono" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="px-6 py-4 border-t border-neutral-100 bg-neutral-50 flex justify-end gap-2">
+                  <Button type="button" variant="outline" onClick={() => setOpenAddModal(false)} className="h-9 text-sm border-neutral-200 text-neutral-600">Cancel</Button>
+                  <Button type="submit" className="h-9 text-sm bg-amber-500 hover:bg-amber-600 text-white font-semibold shadow-sm">Create Host</Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
         <p className="text-sm text-text-secondary ml-12">
           All enrolled hosts across your infrastructure.
@@ -122,6 +247,7 @@ export default function HostsPage() {
                 <th className="text-left px-5 py-3 text-xs font-bold text-text-muted uppercase tracking-wider">OS</th>
                 <th className="text-left px-5 py-3 text-xs font-bold text-text-muted uppercase tracking-wider">Environment</th>
                 <th className="text-left px-5 py-3 text-xs font-bold text-text-muted uppercase tracking-wider">Project</th>
+                <th className="text-left px-5 py-3 text-xs font-bold text-text-muted uppercase tracking-wider">Component</th>
                 <th className="text-left px-5 py-3 text-xs font-bold text-text-muted uppercase tracking-wider">Tags</th>
                 <th className="text-left px-5 py-3 text-xs font-bold text-text-muted uppercase tracking-wider">Enrolled At</th>
               </tr>

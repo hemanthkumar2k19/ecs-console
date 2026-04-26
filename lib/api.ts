@@ -11,6 +11,16 @@ import {
   MOCK_RULES,
   MOCK_STATE_SNAPSHOTS,
   MOCK_COMPLIANCE_TIMELINE,
+  MOCK_COMPONENTS,
+  MOCK_STAKEHOLDERS,
+  MOCK_PROJECTS,
+  MOCK_AUDITS,
+  MOCK_AUDIT_CONTROLS,
+  MOCK_PROJECT_AUDITS,
+  MOCK_HOST_TAGS,
+  MOCK_POLICY_VERSIONS,
+  MOCK_POLICY_RULES,
+  MOCK_HOST_POLICY_ASSIGNMENTS,
 } from "./mock";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -45,12 +55,22 @@ export interface WeeklyEvidencePoint {
   count: number;
 }
 
+export type Component = (typeof MOCK_COMPONENTS)[number];
 export type Host = (typeof MOCK_HOSTS)[number];
 export type Agent = (typeof MOCK_AGENTS)[number];
 export type Policy = (typeof MOCK_POLICIES)[number];
 export type Rule = (typeof MOCK_RULES)[number];
 export type StateSnapshot = (typeof MOCK_STATE_SNAPSHOTS)[number];
 export type CompliancePoint = (typeof MOCK_COMPLIANCE_TIMELINE)[number];
+export type Stakeholder = (typeof MOCK_STAKEHOLDERS)[number];
+export type Project = (typeof MOCK_PROJECTS)[number];
+export type Audit = (typeof MOCK_AUDITS)[number];
+export type AuditControl = (typeof MOCK_AUDIT_CONTROLS)[number];
+export type ProjectAudit = (typeof MOCK_PROJECT_AUDITS)[number];
+export type HostTag = (typeof MOCK_HOST_TAGS)[number];
+export type PolicyVersion = (typeof MOCK_POLICY_VERSIONS)[number];
+export type PolicyRule = (typeof MOCK_POLICY_RULES)[number];
+export type HostPolicyAssignment = (typeof MOCK_HOST_POLICY_ASSIGNMENTS)[number];
 
 // ─── HTTP API Client ──────────────────────────────────────────────────────────
 // Set NEXT_PUBLIC_API_BASE_URL in .env.local to enable live API calls.
@@ -90,17 +110,17 @@ export async function login(userId: string, password: string): Promise<AuthUser>
 
   // Mock fallback
   await new Promise((resolve) => setTimeout(resolve, 800));
-  const user = MOCK_USERS.find((u) => u.userId === userId && u.password === password);
+  const user = MOCK_USERS.find((u) => u.id === userId && u.password === password);
   if (!user) throw new Error("Invalid credentials");
 
   return {
-    userId: user.userId,
+    userId: user.id,
     name: user.name,
     role: user.role,
     email: user.email,
     department: user.department,
     avatar: user.avatar,
-    lastLogin: user.lastLogin,
+    lastLogin: user.last_login,
   };
 }
 
@@ -142,7 +162,29 @@ export async function getComplianceTimeline(): Promise<CompliancePoint[]> {
   return MOCK_COMPLIANCE_TIMELINE;
 }
 
+// ─── Components ───────────────────────────────────────────────────────────────
+
+export async function getComponents(): Promise<Component[]> {
+  try {
+    return await apiFetch<Component[]>("/components");
+  } catch (e) {
+    if (API_BASE) console.warn("getComponents: API call failed, falling back to mock", e);
+  }
+  return MOCK_COMPONENTS;
+}
+
+export async function getComponentById(id: string): Promise<Component | undefined> {
+  try {
+    return await apiFetch<Component>(`/components/${id}`);
+  } catch (e) {
+    if (API_BASE) console.warn(`getComponentById(${id}): API call failed, falling back to mock`, e);
+  }
+  return MOCK_COMPONENTS.find((c) => c.id === id);
+}
+
 // ─── Hosts ────────────────────────────────────────────────────────────────────
+
+let mockHostsState = [...MOCK_HOSTS];
 
 export async function getHosts(): Promise<Host[]> {
   try {
@@ -150,7 +192,7 @@ export async function getHosts(): Promise<Host[]> {
   } catch (e) {
     if (API_BASE) console.warn("getHosts: API call failed, falling back to mock", e);
   }
-  return MOCK_HOSTS;
+  return mockHostsState;
 }
 
 export async function getHostById(id: string): Promise<Host | undefined> {
@@ -159,7 +201,32 @@ export async function getHostById(id: string): Promise<Host | undefined> {
   } catch (e) {
     if (API_BASE) console.warn(`getHostById(${id}): API call failed, falling back to mock`, e);
   }
-  return MOCK_HOSTS.find((h) => h.id === id);
+  return mockHostsState.find((h) => h.id === id);
+}
+
+export async function createHost(data: Omit<Host, "id" | "created_at" | "updated_at" | "tags">): Promise<Host> {
+  const newHost: Host = {
+    ...data,
+    id: crypto.randomUUID(),
+    tags: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+  // Prepend to array
+  mockHostsState = [newHost, ...mockHostsState];
+  return newHost;
+}
+
+export async function updateHostTags(id: string, tags: Host["tags"]): Promise<Host | undefined> {
+  const idx = mockHostsState.findIndex((h) => h.id === id);
+  if (idx === -1) return undefined;
+  
+  mockHostsState[idx] = {
+    ...mockHostsState[idx],
+    tags,
+    updated_at: new Date().toISOString()
+  };
+  return mockHostsState[idx];
 }
 
 // ─── Agents ───────────────────────────────────────────────────────────────────
@@ -240,4 +307,87 @@ export async function getSnapshotsByHost(hostId: string): Promise<StateSnapshot[
     if (API_BASE) console.warn(`getSnapshotsByHost(${hostId}): API call failed, falling back to mock`, e);
   }
   return MOCK_STATE_SNAPSHOTS.filter((s) => s.host_id === hostId);
+}
+
+// ─── Additional Entities ──────────────────────────────────────────────────────
+
+export async function getStakeholders(): Promise<Stakeholder[]> {
+  try {
+    return await apiFetch<Stakeholder[]>("/stakeholders");
+  } catch (e) {
+    if (API_BASE) console.warn("getStakeholders fallback", e);
+  }
+  return MOCK_STAKEHOLDERS;
+}
+
+export async function getProjects(): Promise<Project[]> {
+  try {
+    return await apiFetch<Project[]>("/projects");
+  } catch (e) {
+    if (API_BASE) console.warn("getProjects fallback", e);
+  }
+  return MOCK_PROJECTS;
+}
+
+export async function getAudits(): Promise<Audit[]> {
+  try {
+    return await apiFetch<Audit[]>("/audits");
+  } catch (e) {
+    if (API_BASE) console.warn("getAudits fallback", e);
+  }
+  return MOCK_AUDITS;
+}
+
+export async function getAuditControls(): Promise<AuditControl[]> {
+  try {
+    return await apiFetch<AuditControl[]>("/audit-controls");
+  } catch (e) {
+    if (API_BASE) console.warn("getAuditControls fallback", e);
+  }
+  return MOCK_AUDIT_CONTROLS;
+}
+
+export async function getProjectAudits(): Promise<ProjectAudit[]> {
+  try {
+    return await apiFetch<ProjectAudit[]>("/project-audits");
+  } catch (e) {
+    if (API_BASE) console.warn("getProjectAudits fallback", e);
+  }
+  return MOCK_PROJECT_AUDITS;
+}
+
+export async function getHostTags(): Promise<HostTag[]> {
+  try {
+    return await apiFetch<HostTag[]>("/host-tags");
+  } catch (e) {
+    if (API_BASE) console.warn("getHostTags fallback", e);
+  }
+  return MOCK_HOST_TAGS;
+}
+
+export async function getPolicyVersions(): Promise<PolicyVersion[]> {
+  try {
+    return await apiFetch<PolicyVersion[]>("/policy-versions");
+  } catch (e) {
+    if (API_BASE) console.warn("getPolicyVersions fallback", e);
+  }
+  return MOCK_POLICY_VERSIONS;
+}
+
+export async function getPolicyRules(): Promise<PolicyRule[]> {
+  try {
+    return await apiFetch<PolicyRule[]>("/policy-rules");
+  } catch (e) {
+    if (API_BASE) console.warn("getPolicyRules fallback", e);
+  }
+  return MOCK_POLICY_RULES;
+}
+
+export async function getHostPolicyAssignments(): Promise<HostPolicyAssignment[]> {
+  try {
+    return await apiFetch<HostPolicyAssignment[]>("/host-policy-assignments");
+  } catch (e) {
+    if (API_BASE) console.warn("getHostPolicyAssignments fallback", e);
+  }
+  return MOCK_HOST_POLICY_ASSIGNMENTS;
 }

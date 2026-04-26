@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { login } from "@/lib/api";
+import { saveSession } from "@/lib/session";
 
 interface FormState {
   userId: string;
@@ -50,7 +51,8 @@ export default function LoginCard() {
     setErrors({});
 
     try {
-      await login(form.userId, form.password);
+      const user = await login(form.userId, form.password);
+      saveSession(user);
       router.push("/dashboard");
     } catch {
       setErrors({ general: "Invalid credentials. Please try again." });

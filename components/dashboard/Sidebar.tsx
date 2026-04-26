@@ -13,14 +13,34 @@ import {
   ChevronRight,
   PanelLeftClose,
   PanelLeftOpen,
+  Users,
+  FolderKanban,
+  BookOpen,
+  ListTree,
+  ClipboardList,
+  Cpu,
+  FileSearch,
 } from "lucide-react";
 
-const navItems = [
+const infraItems = [
   { label: "Hosts", icon: Monitor, href: "/dashboard/hosts" },
   { label: "Agents", icon: Bot, href: "/dashboard/agents" },
+  { label: "Components", icon: Cpu, href: "/dashboard/components" },
+];
+
+const policyItems = [
   { label: "Policies", icon: ShieldCheck, href: "/dashboard/policies" },
   { label: "Rules", icon: ListChecks, href: "/dashboard/rules" },
   { label: "Compliance", icon: ClipboardCheck, href: "/dashboard/compliance" },
+  { label: "Evidence", icon: FileSearch, href: "/dashboard/evidence" },
+];
+
+const governanceItems = [
+  { label: "Stakeholders", icon: Users, href: "/dashboard/stakeholders" },
+  { label: "Projects", icon: FolderKanban, href: "/dashboard/projects" },
+  { label: "Audits", icon: BookOpen, href: "/dashboard/audits" },
+  { label: "Audit Controls", icon: ListTree, href: "/dashboard/audit-controls" },
+  { label: "Project Audits", icon: ClipboardList, href: "/dashboard/project-audits" },
 ];
 
 const bottomItems = [
@@ -64,6 +84,15 @@ export default function Sidebar() {
     );
   };
 
+  const SectionLabel = ({ label }: { label: string }) =>
+    !isCollapsed ? (
+      <p className="px-3 text-[10px] font-bold uppercase tracking-[0.15em] text-neutral-600 mb-2 mt-4 first:mt-0">
+        {label}
+      </p>
+    ) : (
+      <div className="border-t border-neutral-800 my-2" />
+    );
+
   return (
     <aside className={`flex-shrink-0 flex flex-col bg-sidebar-bg border-r border-neutral-800 min-h-screen transition-all duration-300 ${isCollapsed ? "w-[72px]" : "w-60"}`}>
       {/* Header */}
@@ -89,22 +118,20 @@ export default function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className={`flex-1 overflow-x-hidden ${isCollapsed ? "px-2" : "px-3"} py-4 space-y-0.5`}>
-        {!isCollapsed && (
-          <p className="px-3 text-[10px] font-bold uppercase tracking-[0.15em] text-neutral-600 mb-3">
-            Navigation
-          </p>
-        )}
-        {navItems.map((item) => (
-          <NavLink key={item.href} item={item} />
-        ))}
+      <nav className={`flex-1 overflow-x-hidden overflow-y-auto ${isCollapsed ? "px-2" : "px-3"} py-4 space-y-0.5`}>
+        <SectionLabel label="Infrastructure" />
+        {infraItems.map((item) => <NavLink key={item.href} item={item} />)}
+
+        <SectionLabel label="Policy" />
+        {policyItems.map((item) => <NavLink key={item.href} item={item} />)}
+
+        <SectionLabel label="Governance" />
+        {governanceItems.map((item) => <NavLink key={item.href} item={item} />)}
       </nav>
 
       {/* Bottom Section */}
       <div className={`${isCollapsed ? "px-2" : "px-3"} py-4 border-t border-neutral-800 space-y-0.5`}>
-        {bottomItems.map((item) => (
-          <NavLink key={item.href} item={item} />
-        ))}
+        {bottomItems.map((item) => <NavLink key={item.href} item={item} />)}
       </div>
     </aside>
   );
